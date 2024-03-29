@@ -1,37 +1,71 @@
-<html>
-    <head> 
-        <title>Flower Species Prediction</title>
-    </head>
-    <body>
-        <h1>Enter Flower Measurements</h1>
-        <form id="predictForm" onsubmit="event.preventDefault(); submitData()">
-            Sepal Length: <input type="text" name="sepal_length" id="sepal_length"><br>
-            Sepal Width: <input type="text" name="sepal_width" id="sepal_width"><br>
-            Petal Length: <input type="text" name="petal_length" id="petal_length"><br>
-            Petal Width: <input type="text" name="petal_width" id="petal_width"><br>
-            <input type="submit" value="Predict">
-        </form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Species Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* Выбираем шрифт Arial */
+            background-color: #f0f0f0; /* Цвет фона */
+            text-align: center; /* Сдвигаем текст в центр экрана */
+            margin-top: 50px; /* Отступ сверху */
+        }
+        h1 {
+            color: #333; /* Цвет заголовка */
+        }
+        form {
+            margin-top: 20px; /* Отступ для формы */
+        }
+        input[type="text"] {
+            padding: 5px; /* Поля ввода */
+            margin-bottom: 10px; /* Отступ между полями */
+        }
+        input[type="submit"] {
+            padding: 10px 20px; /* Размер кнопки */
+            background-color: #4CAF50; /* Цвет кнопки */
+            color: white; /* Цвет текста на кнопке */
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049; /* Цвет кнопки при наведении */
+        }
+    </style>
+</head>
+<body>
+    <h1>Enter Flower Measurements</h1>
+    <form id="predictForm" onsubmit="event.preventDefault(); submitData()">
+        Sepal Length: <input type="text" name="sepal_length" id="sepal_length"><br>
+        Sepal Width: <input type="text" name="sepal_width" id="sepal_width"><br>
+        Petal Length: <input type="text" name="petal_length" id="petal_length"><br>
+        Petal Width: <input type="text" name="petal_width" id="petal_width"><br>
+        <input type="submit" value="Predict">
+    </form>
 
-        <script>
-            async function submitData() {
-                const formData = {
-                    sepal_length: parseFloat(document.getElementById('sepal_length').value),
-                    sepal_width: parseFloat(document.getElementById('sepal_width').value),
-                    petal_length: parseFloat(document.getElementById('petal_length').value),
-                    petal_width: parseFloat(document.getElementById('petal_width').value)
-                };
+    <script>
+        async function submitData() {
+            const formData = {
+                sepal_length: parseFloat(document.getElementById('sepal_length').value),
+                sepal_width: parseFloat(document.getElementById('sepal_width').value),
+                petal_length: parseFloat(document.getElementById('petal_length').value),
+                petal_width: parseFloat(document.getElementById('petal_width').value)
+            };
 
-                const response = await fetch('/predict', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
 
-                const data = await response.json();
-                alert(data.prediction);
-            }
-        </script>
-    </body>
+            const data = await response.json();
+            window.location.href = "/prediction_result?prediction=" + data.prediction;
+        }
+    </script>
+
+    <img src="https://www.ryazagro.ru/upload/iblock/b34/kir.jpg" alt="Kitten" style="max-width: 100%; height: auto;">
+</body>
 </html>
