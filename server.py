@@ -23,6 +23,10 @@ class IrisSpecies(BaseModel):
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory="templates")
 
+@app.get("/", response_class=HTMLResponse)
+async def read_main(request: Request):
+    return templates.TemplateResponse("main.html", {"request": request})
+
 @app.get("/items", response_class=HTMLResponse)
 async def read_items(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -47,3 +51,6 @@ async def predict(iris: IrisSpecies):
     return {
         "prediction": prediction
     }
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
