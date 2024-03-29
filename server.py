@@ -27,6 +27,10 @@ templates = Jinja2Templates(directory="templates")
 async def read_items(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/prediction_result", response_class=HTMLResponse)
+async def show_prediction(request: Request, prediction: str):
+    return templates.TemplateResponse("prediction.html", {"request": request, "prediction": prediction})
+
 @app.post('/predict')
 async def predict(iris: IrisSpecies):
     """
