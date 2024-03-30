@@ -61,44 +61,33 @@
     </style>
 </head>
 <body>
-    <h1>Enter Flower Measurements</h1>
     <form id="predictForm" onsubmit="event.preventDefault(); submitData()">
         <div class="predict-box">
-            <label for="sepal_length">Sepal Length:</label>
-            <input type="text" name="sepal_length" id="sepal_length">
-
-            <label for="sepal_width">Sepal Width:</label>
-            <input type="text" name="sepal_width" id="sepal_width">
-
-            <label for="petal_length">Petal Length:</label>
-            <input type="text" name="petal_length" id="petal_length">
-
-            <label for="petal_width">Petal Width:</label>
-            <input type="text" name="petal_width" id="petal_width">
-
+            <label for="inputFile">Upload your CSV file:</label>
+            <input type="file" id="inputFile">
             <input type="submit" value="Predict">
         </div>
     </form>
-    <script>
-        async function submitData() {
-            const formData = {
-                sepal_length: parseFloat(document.getElementById('sepal_length').value),
-                sepal_width: parseFloat(document.getElementById('sepal_width').value),
-                petal_length: parseFloat(document.getElementById('petal_length').value),
-                petal_width: parseFloat(document.getElementById('petal_width').value)
-            };
 
-            const response = await fetch('/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+<script>
+    async function submitData() {
+        const input = document.getElementById('inputFile');
+        const file = input.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('/predict', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        console.log(data);  // Отобразить данные, полученные от сервера
+        window.location.href = "/prediction_result?predictions=" + data.predictions;
 
-            const data = await response.json();
-            window.location.href = "/prediction_result?prediction=" + data.prediction;
-        }
-    </script>
+    }
+</script>
+
+
 </body>
 </html>
