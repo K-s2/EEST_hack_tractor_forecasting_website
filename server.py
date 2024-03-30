@@ -1,6 +1,8 @@
 import joblib
 import uvicorn
+import csv
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from fastapi.templating import Jinja2Templates
@@ -22,6 +24,9 @@ class IrisSpecies(BaseModel):
 # Set up templates directory
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory="templates")
+
+# Путь к папке со статическими файлами
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 async def read_main(request: Request):
