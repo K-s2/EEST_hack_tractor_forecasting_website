@@ -1,61 +1,104 @@
-import joblib
-import uvicorn
-import csv
-from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
-from fastapi.templating import Jinja2Templates
-from pathlib import Path
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Species Prediction</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            margin-top: 50px;
+            color: #333;
+        }
+        h1 {
+            color: #333; /* Change the color from green to black */
+            padding: 30px 0;
+        }
+        form {
+            margin: 20px auto;
+        }
+        input[type="text"] {
+            display: block;
+            width: 80%;
+            padding: 10px;
+            margin: 10px auto;
+            border: 1px solid #AAA;
+            border-radius: 3px;
+        }
+        input[type="submit"] {
+            display: block;
+            padding: 10px 20px;
+            margin: 10px auto;
+            background-color: #FF3333; /* Change the color from green to light red */
+            border: none;
+            color: #FFF;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #D12D2D; /* Darker shade of light red */
+        }
+        .predict-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 300px;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.05); /* Change color from light red to very light black */
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            border: 2px solid #FF3333;
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Enter Flower Measurements</h1>
+    <form id="predictForm" onsubmit="event.preventDefault(); submitData()">
+        <div class="predict-box">
+            <label for="sepal_length">Sepal Length:</label>
+            <input type="text" name="sepal_length" id="sepal_length">
 
-# App creation and model loading
-app = FastAPI()
-model = joblib.load("./model.joblib")
+            <label for="sepal_width">Sepal Width:</label>
+            <input type="text" name="sepal_width" id="sepal_width">
 
-class IrisSpecies(BaseModel):
-    """
-    Input features validation for the ML model
-    """
-    sepal_length: float
-    sepal_width: float
-    petal_length: float
-    petal_width: float
+            <label for="petal_length">Petal Length:</label>
+            <input type="text" name="petal_length" id="petal_length">
 
-# Set up templates directory
-BASE_DIR = Path(__file__).resolve().parent
-templates = Jinja2Templates(directory="templates")
+            <label for="petal_width">Petal Width:</label>
+            <input type="text" name="petal_width" id="petal_width">
 
-# Путь к папке со статическими файлами
-app.mount("/static", StaticFiles(directory="static"), name="static")
+            <input type="submit" value="Predict">
+        </div>
+    </form>
+    <script>
+        async function submitData() {
+            const formData = {
+                sepal_length: parseFloat(document.getElementById('sepal_length').value),
+                sepal_width: parseFloat(document.getElementById('sepal_width').value),
+                petal_length: parseFloat(document.getElementById('petal_length').value),
+                petal_width: parseFloat(document.getElementById('petal_width').value)
+            };
 
-@app.get("/", response_class=HTMLResponse)
-async def read_main(request: Request):
-    return templates.TemplateResponse("main.html", {"request": request})
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
 
-@app.get("/items", response_class=HTMLResponse)
-async def read_items(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-@app.get("/prediction_result", response_class=HTMLResponse)
-async def show_prediction(request: Request, prediction: str):
-    return templates.TemplateResponse("prediction.html", {"request": request, "prediction": prediction})
-
-@app.post('/predict')
-async def predict(iris: IrisSpecies):
-    """
-    :param iris: input data from the post request
-    :return: predicted iris type
-    """
-    features = [[
-        iris.sepal_length,
-        iris.sepal_width,   
-        iris.petal_length,
-        iris.petal_width
-    ]]
-    prediction = model.predict(features).tolist()[0]
-    return {
-        "prediction": prediction
-    }
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+            const data = await response.json();
+            window.location.href = "/prediction_result?prediction=" + data.prediction;
+        }
+    </script>
+</body>
+</html>
