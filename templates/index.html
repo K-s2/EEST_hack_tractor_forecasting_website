@@ -1,71 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flower Species Prediction</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif; /* Выбираем шрифт Arial */
-            background-color: #f0f0f0; /* Цвет фона */
-            text-align: center; /* Сдвигаем текст в центр экрана */
-            margin-top: 50px; /* Отступ сверху */
-        }
-        h1 {
-            color: #333; /* Цвет заголовка */
-        }
-        form {
-            margin-top: 20px; /* Отступ для формы */
-        }
-        input[type="text"] {
-            padding: 5px; /* Поля ввода */
-            margin-bottom: 10px; /* Отступ между полями */
-        }
-        input[type="submit"] {
-            padding: 10px 20px; /* Размер кнопки */
-            background-color: #4CAF50; /* Цвет кнопки */
-            color: white; /* Цвет текста на кнопке */
-            border: none;
-            cursor: pointer;
-        }
-        input[type="submit"]:hover {
-            background-color: #45a049; /* Цвет кнопки при наведении */
-        }
-    </style>
-</head>
-<body>
-    <h1>Enter Flower Measurements</h1>
-    <form id="predictForm" onsubmit="event.preventDefault(); submitData()">
-        Sepal Length: <input type="text" name="sepal_length" id="sepal_length"><br>
-        Sepal Width: <input type="text" name="sepal_width" id="sepal_width"><br>
-        Petal Length: <input type="text" name="petal_length" id="petal_length"><br>
-        Petal Width: <input type="text" name="petal_width" id="petal_width"><br>
-        <input type="submit" value="Predict">
-    </form>
+import joblib
+import uvicorn
+import csv
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
 
-    <script>
-        async function submitData() {
-            const formData = {
-                sepal_length: parseFloat(document.getElementById('sepal_length').value),
-                sepal_width: parseFloat(document.getElementById('sepal_width').value),
-                petal_length: parseFloat(document.getElementById('petal_length').value),
-                petal_width: parseFloat(document.getElementById('petal_width').value)
-            };
+# App creation and model loading
+app = FastAPI()
+model = joblib.load("./model.joblib")
 
-            const response = await fetch('/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+class IrisSpecies(BaseModel):
+    """
+    Input features validation for the ML model
+    """
+    sepal_length: float
+    sepal_width: float
+    petal_length: float
+    petal_width: float
 
-            const data = await response.json();
-            window.location.href = "/prediction_result?prediction=" + data.prediction;
-        }
-    </script>
+# Set up templates directory
+BASE_DIR = Path(__file__).resolve().parent
+templates = Jinja2Templates(directory="templates")
 
-    <img src="https://www.ryazagro.ru/upload/iblock/b34/kir.jpg" alt="Kitten" style="max-width: 100%; height: auto;">
-</body>
-</html>
+# Путь к папке со статическими файлами
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/", response_class=HTMLResponse)
+async def read_main(request: Request):
+    return templates.TemplateResponse("main.html", {"request": request})
+
+@app.get("/items", response_class=HTMLResponse)
+async def read_items(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/prediction_result", response_class=HTMLResponse)
+async def show_prediction(request: Request, prediction: str):
+    return templates.TemplateResponse("prediction.html", {"request": request, "prediction": prediction})
+
+@app.post('/predict')
+async def predict(iris: IrisSpecies):
+    """
+    :param iris: input data from the post request
+    :return: predicted iris type
+    """
+    features = [[
+        iris.sepal_length,
+        iris.sepal_width,   
+        iris.petal_length,
+        iris.petal_width
+    ]]
+    prediction = model.predict(features).tolist()[0]
+    return {
+        "prediction": prediction
+    }
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
