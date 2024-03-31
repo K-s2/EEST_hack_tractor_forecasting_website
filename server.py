@@ -58,16 +58,16 @@ async def predict(file: UploadFile = File(...)):
     df = pd.read_csv(file.file, nrows=1)
     
     # Make sure it has the right columns
-    assert set(df.columns) == {"sepal_length", "sepal_width", "petal_length", "petal_width"}, f"Incorrect columns: {df.columns}"
+    #assert set(df.columns) == {"sepal_length", "sepal_width", "petal_length", "petal_width"}, f"Incorrect columns: {df.columns}"
     
     # Ensure columns are in the right order
-    df = df[["sepal_length", "sepal_width", "petal_length", "petal_width"]]
+    #df = df[["sepal_length", "sepal_width", "petal_length", "petal_width"]]
 
-    logger.debug(f"File received: {file.filename}")
+    #logger.debug(f"File received: {file.filename}")
     
     predictions = model.predict(df.values).tolist()[0]
 
-    logger.debug(f"Predictions done: {predictions}")
+    #logger.debug(f"Predictions done: {predictions}")
 
     # Return the predictions
     return {"predictions": predictions}
