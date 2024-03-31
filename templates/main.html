@@ -5,13 +5,68 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <style>
+      body {
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+      }
+      video {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          min-width: 100%;
+          min-height: 100%;
+          width: auto;
+          height: auto;
+          z-index: -1;
+      }
+      .content {
+          position: relative;
+          text-align: center;
+          padding: 20px;
+      }
+      h1 {
+          color: #f8f9fa;
+          text-shadow: 2px 2px 5px black;
+      }
+      img {
+          border-radius: 4px;
+          box-shadow: 0px 0px 3px #000;
+          margin-top: 5%;
+          margin-bottom: 5%;
+      }
+      .btn {
+          display: block;
+          width: 200px;
+          margin: 40px auto;
+          background-color: #dc3545;
+          color: white;
+          padding: 10px;
+          text-decoration: none;
+          border-radius: 5px;
+          transition: background-color 0.3s ease;
+      }
+      .btn:hover {
+          background-color: #bd2130;
+      }
+  </style>
+
 </head>
 <body>
-    <h1>Welcome to Tractor Prediction App!</h1>
-    <img src="/static/test_accuracy.jpg" alt="Test Accuracy" style="width: 50%;">
-    <img src="/static/validation_accuracy.jpg" alt="Validation Accuracy" style="width: 50%;">
-    <form action="/items">
-        <button type="submit">Test Your Tractor</button>
-    </form>
+    <video autoplay loop muted>
+        <source src="/static/hd_bg.mp4" type="video/mp4">
+    </video>
+    <div class="content">
+        <h1>Welcome to Tractor Prediction App!</h1>
+        <img src="/static/test_accuracy.jpg" alt="Test Accuracy" style="width: 80%;">
+        <img src="/static/validation_accuracy.jpg" alt="Validation Accuracy" style="width: 80%;">
+        <a href="/items" class="btn">Test Your Tractor</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 </body>
 </html>
